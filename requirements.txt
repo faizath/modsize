@@ -1,3 +1,4 @@
-filetype==1.0.1
-pwntools==3.12.1
+filetype==1.2.0
+pwntools==4.13.0
 pwn==1.0
+

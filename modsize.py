@@ -23,10 +23,10 @@ def modify_file(offset1, offset2, filename,output, width=None, height=None):
 	for b in arr:
 		bin_arr.append(b)
 		
-	org_width = hex(int(bin_arr[offset1].encode("hex") + bin_arr[offset1+1].encode("hex"),16))
-	org_height = hex(int(bin_arr[offset2].encode("hex") + bin_arr[offset2+1].encode("hex"),16))
+	org_width = hex(int(hex(bin_arr[offset1])[2:] + hex(bin_arr[offset1+1])[2:],16))
+	org_height = hex(int(hex(bin_arr[offset2])[2:] + hex(bin_arr[offset2+1])[2:],16))
 
-	print org_width	
+	#print(org_width)	
 
 	p.success("Image loaded!")
 	log.info("Detected width: %d px" % int(org_width,16))
@@ -52,16 +52,16 @@ def modify_file(offset1, offset2, filename,output, width=None, height=None):
 	
 
 	#Set width
-	bin_arr[offset1]=str(new_width)[:2].decode("hex")
-	bin_arr[offset1+1]=str(new_width)[2:].decode("hex")
+	bin_arr[offset1]=int(str(new_width)[:2], 16)
+	bin_arr[offset1+1]=int(str(new_width)[2:], 16)
 	#set height
-	bin_arr[offset2]=str(new_height)[:2].decode("hex")
-	bin_arr[offset2+1]=str(new_height)[2:].decode("hex")
+	bin_arr[offset2]=int(str(new_height)[:2], 16)
+	bin_arr[offset2+1]=int(str(new_height)[2:], 16)
 
 	p = log.progress("modsize")
 	p.status("Saving new image file")
 	with open(output, "wb") as binary_file:
-		binary_file.write("".join(bin_arr))
+		binary_file.write(b"".join([(x).to_bytes(1, 'big') for x in bin_arr]))
 	p.success("Image saved!")
 	
 def modify_png(filename,output,width,height):
@@ -86,10 +86,10 @@ def modify_jpg(filename,output,width,height):
 	prev = ""
 	i = 0
 	for b in arr:
-		if prev + b.encode("hex") == "ffc0":
+		if prev + hex(b)[2:] == "ffc0":
 			break
 		i+=1
-		prev = b.encode("hex")
+		prev = hex(b)[2:]
 	log.info("Found magic bytes on offset %d " % i)
 	modify_file(i+6,i+4,filename,output,width,height)
 
